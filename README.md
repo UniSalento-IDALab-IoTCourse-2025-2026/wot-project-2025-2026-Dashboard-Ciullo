@@ -1,89 +1,41 @@
-# SMARTCARE — Dashboard Web
+# SMARTCARE — Dashboard
 
-Interfaccia web React.js per il monitoraggio dei pazienti cardiaci.
-Accessibile da browser su rete locale.
+## Descrizione del progetto
+SMARTCARE è un sistema intelligente EDGE per la raccolta di parametri biomedici
+e il rilevamento di anomalie in pazienti affetti da scompenso cardiaco.
+Il sistema acquisisce segnali biomedici reali tramite macchinario IIT,
+esegue anomaly detection in edge su Raspberry Pi con Isolation Forest,
+e notifica automaticamente il medico e il hub del pronto soccorso
+in caso di eventi critici, includendo la posizione GPS del paziente.
 
-## Stack tecnologico
+## Architettura del sistema
+1. **Macchinario IIT + Dongle** — acquisisce segnali biomedici reali via BLE
+2. **Raspberry Pi (edge node)** — anomaly detection con Isolation Forest
+3. **App smartphone** — risponde con posizione GPS su richiesta del Raspberry
+4. **Backend** — MQTT, MongoDB, REST API, alert engine
+5. **Dashboard paziente + Dashboard medico** — due web app React separate
 
-- **React** + **Vite** — framework e build tool
-- **React Router** — navigazione tra pagine
-- **Axios** — chiamate REST API al backend
-- **Recharts** — grafico andamento BPM
-- **Leaflet** + **React Leaflet** — mappa GPS interattiva
-- **JWT** — autenticazione stateless
+## Repository delle componenti
+| Componente | Repository |
+|---|---|
+| Raspberry Pi (edge node) | [wot-project-2025-2026-RaspberryPi-Ciullo](https://github.com/UniSalento-IDALab-IoTCourse-2025-2026/wot-project-2025-2026-RaspberryPi-Ciullo) |
+| App Mobile (GPS) | [wot-project-2025-2026-MobileApp-Ciullo](https://github.com/UniSalento-IDALab-IoTCourse-2025-2026/wot-project-2025-2026-MobileApp-Ciullo) |
+| Backend | [wot-project-2025-2026-Backend-Ciullo](https://github.com/UniSalento-IDALab-IoTCourse-2025-2026/wot-project-2025-2026-Backend-Ciullo) |
+| Dashboard | questo repository |
+| Presentazione | [wot-project-2025-2026-Presentation-Ciullo](https://github.com/UniSalento-IDALab-IoTCourse-2025-2026/wot-project-2025-2026-Presentation-Ciullo) |
 
-## Viste disponibili
+## Questa componente — Dashboard
+Questo repository contiene due web app React separate con login dedicato:
+una per il paziente e una per il medico curante.
 
-### Vista Paziente (/paziente)
-- Vitali in tempo reale (BPM, HRV, Temperatura, Anomaly score)
-- Attività giornaliera (passi, distanza, calorie)
-- Grafico BPM storico con soglie cliniche
-- Mappa GPS live con postura
-- Lista alert recenti scorrevole
+### Dashboard paziente
+- Login dedicato paziente
+- Visualizzazione vitali in tempo reale (HR, SpO2, temperatura, postura)
+- Notifiche anomalia con severity
 
-### Vista Medico (/medico)
-- Tabella tutti i pazienti con vitali in tempo reale
-- Contatori warning e critical attivi
-- Lista alert filtrabili per severity
-- Bottone + per aggiungere nuovi pazienti
+### Dashboard medico
+- Login dedicato medico
+- Grafici storici parametri vitali
+- Pannello annotazioni eventi anomali (vero positivo / falso positivo)
+- Alert critici con posizione GPS del paziente
 
-### Dettaglio Paziente (/medico/paziente/:id)
-- Dati anagrafici completi
-- Vitali attuali + postura
-- Attività giornaliera
-- Grafico BPM storico
-- Mappa GPS
-- Alert recenti
-
-## Struttura file
-src/
-├── context/
-│   └── AuthContext.jsx      — gestione autenticazione JWT
-├── pages/
-│   ├── Login.jsx            — pagina login
-│   ├── PatientDashboard.jsx — dashboard paziente
-│   ├── DoctorDashboard.jsx  — dashboard medico
-│   └── PatientDetail.jsx    — dettaglio paziente
-└── components/
-├── VitalsCard.jsx       — card vitali (BPM, HRV, Temp, Anomaly)
-├── BpmChart.jsx         — grafico BPM con Recharts
-├── ImuPanel.jsx         — pannello IMU e postura
-├── AlertList.jsx        — lista alert scorrevole
-└── MappaGPS.jsx         — mappa OpenStreetMap con Leaflet
-
-## Setup
-
-```bash
-# Installa dipendenze
-npm install
-
-# Avvia in sviluppo
-npm run dev
-
-# Build produzione
-npm run build
-```
-
-## Configurazione proxy (vite.config.js)
-
-Il proxy Vite gira le richieste API al backend Node.js:
-```javascript
-server: {
-  proxy: {
-    '/api':  'http://localhost:3000',
-    '/auth': 'http://localhost:3000',
-  }
-}
-```
-
-## Credenziali di test
-| Ruolo | Email | Password |
-|-------|-------|----------|
-| Medico | medico@smartcare.it | medico123 |
-| Paziente | paziente@smartcare.it | paziente123 |
-
-## Note
-- La dashboard si aggiorna ogni 10 secondi tramite polling REST API
-- La mappa GPS usa OpenStreetMap — gratuito, no API key necessaria
-- I dati GPS vengono aggiornati dall'app Android ogni 10 secondi
-- Il token JWT viene salvato nel localStorage del browser
