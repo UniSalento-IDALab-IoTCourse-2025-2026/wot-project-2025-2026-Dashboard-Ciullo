@@ -18,17 +18,17 @@ import MappaGPS   from '../components/MappaGPS'
 const PATIENT_ID = 'PAZ-001'
 
 const sevColors = {
-  normal:   { bg: '#085041', text: '#9FE1CB', label: 'Normale' },
-  warning:  { bg: '#854F0B', text: '#FAC775', label: 'Attenzione' },
-  critical: { bg: '#7A1F1F', text: '#F09595', label: 'Critico' },
+  normal:   { bg: '#F0FBF8', text: '#0D7A5F', border: '#6EE7C7', label: 'Normale' },
+  warning:  { bg: '#FFF8ED', text: '#B45309', border: '#FCD34D', label: 'Attenzione' },
+  critical: { bg: '#FFF1F1', text: '#C53030', border: '#FEB2B2', label: 'Critico' },
 }
 
 function stimaPostura(imu) {
   if (!imu) return '—'
-  if (Math.abs(imu.az) > 500) return 'Possibile caduta'
-  if (imu.az > 800)  return 'In piedi'
-  if (imu.az > 400)  return 'Seduto'
-  return 'Sdraiato / in movimento'
+  if (Math.abs(imu.ax) > 60 || Math.abs(imu.ay) > 60) return 'Possibile caduta'
+  if (Math.abs(imu.az) > 80) return 'In piedi'
+  if (Math.abs(imu.az) > 30) return 'Seduto'
+  return 'Fermo'
 }
 
 export default function PatientDashboard() {
@@ -72,25 +72,29 @@ export default function PatientDashboard() {
 
   return (
     <div style={{
-      background: '#1a1a2e', height: '100vh', padding: '14px 20px',
-      fontFamily: 'sans-serif', color: '#fff', boxSizing: 'border-box',
+      background: '#F0F4F8', height: '100vh', padding: '14px 20px',
+      fontFamily: 'sans-serif', color: '#2D3748', boxSizing: 'border-box',
       display: 'flex', flexDirection: 'column', gap: 8, overflow: 'hidden',
     }}>
 
       {/* HEADER */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
         <div>
-          <div style={{ fontSize: 20, fontWeight: 500, letterSpacing: 1 }}>SMARTCARE</div>
-          <div style={{ fontSize: 11, color: '#555', marginTop: 2 }}>
+          <div style={{ fontSize: 20, fontWeight: 600, color: '#1A202C', letterSpacing: 0.5 }}>SMARTCARE</div>
+          <div style={{ fontSize: 11, color: '#8FA3BF', marginTop: 2 }}>
             Monitoraggio paziente — {PATIENT_ID} · aggiornato {lastUpd}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span style={{ background: sc.bg, color: sc.text, padding: '5px 16px', borderRadius: 20, fontSize: 12, fontWeight: 500 }}>
+          <span style={{
+            background: sc.bg, color: sc.text,
+            border: `1px solid ${sc.border}`,
+            padding: '5px 16px', borderRadius: 20, fontSize: 12, fontWeight: 500,
+          }}>
             {sc.label}
           </span>
           <button onClick={() => { logout(); navigate('/login') }} style={{
-            background: '#16213e', border: '0.5px solid #555', color: '#888',
+            background: '#FFFFFF', border: '1px solid #E2EBF6', color: '#8FA3BF',
             padding: '5px 14px', borderRadius: 20, fontSize: 11, cursor: 'pointer',
           }}>Esci</button>
         </div>
@@ -99,36 +103,38 @@ export default function PatientDashboard() {
       {/* RIGA 1: vitali | attività giornaliera */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, flexShrink: 0 }}>
 
-        {/* Componente vitali separato */}
         <VitalsCard patientID={PATIENT_ID} />
 
         {/* Attività giornaliera */}
-        <div style={{ background: '#16213e', borderRadius: 10, padding: '10px 14px' }}>
-          <div style={{ fontSize: 11, color: '#888', marginBottom: 8 }}>Attività giornaliera</div>
+        <div style={{
+          background: '#FFFFFF', borderRadius: 10, padding: '10px 14px',
+          border: '1px solid #E2EBF6', boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+        }}>
+          <div style={{ fontSize: 11, color: '#8FA3BF', marginBottom: 8, fontWeight: 500 }}>Attività giornaliera</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'center', gap: 8 }}>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 500, marginBottom: 3 }}>
-                {passi.toLocaleString()} <span style={{ fontSize: 13, color: '#aaa', fontWeight: 400 }}>passi</span>
+              <div style={{ fontSize: 22, fontWeight: 600, color: '#1A202C', marginBottom: 3 }}>
+                {passi.toLocaleString()} <span style={{ fontSize: 13, color: '#8FA3BF', fontWeight: 400 }}>passi</span>
               </div>
-              <div style={{ fontSize: 10, color: '#555', marginBottom: 4 }}>
+              <div style={{ fontSize: 10, color: '#B0C4D8', marginBottom: 4 }}>
                 Obiettivo: {obiettivo.toLocaleString()} passi
               </div>
-              <div style={{ background: '#0f1731', borderRadius: 4, height: 6, overflow: 'hidden', marginBottom: 3 }}>
-                <div style={{ background: '#378ADD', height: 6, borderRadius: 4, width: `${perc}%` }} />
+              <div style={{ background: '#E2EBF6', borderRadius: 4, height: 6, overflow: 'hidden', marginBottom: 3 }}>
+                <div style={{ background: '#60A5FA', height: 6, borderRadius: 4, width: `${perc}%` }} />
               </div>
-              <div style={{ fontSize: 10, color: '#555', textAlign: 'right' }}>{perc}%</div>
+              <div style={{ fontSize: 10, color: '#8FA3BF', textAlign: 'right' }}>{perc}%</div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <div style={{ background: '#0f1731', borderRadius: 8, padding: '6px 12px', textAlign: 'center' }}>
-                <div style={{ fontSize: 10, color: '#888' }}>Distanza</div>
-                <div style={{ fontSize: 15, fontWeight: 500, color: '#fff' }}>
-                  {distanza}<span style={{ fontSize: 11, color: '#aaa' }}> km</span>
+              <div style={{ background: '#F0F6FF', borderRadius: 8, padding: '6px 12px', textAlign: 'center', border: '1px solid #E2EBF6' }}>
+                <div style={{ fontSize: 10, color: '#8FA3BF' }}>Distanza</div>
+                <div style={{ fontSize: 15, fontWeight: 600, color: '#2D3748' }}>
+                  {distanza}<span style={{ fontSize: 11, color: '#8FA3BF' }}> km</span>
                 </div>
               </div>
-              <div style={{ background: '#0f1731', borderRadius: 8, padding: '6px 12px', textAlign: 'center' }}>
-                <div style={{ fontSize: 10, color: '#888' }}>Calorie</div>
-                <div style={{ fontSize: 15, fontWeight: 500, color: '#fff' }}>
-                  {calorie}<span style={{ fontSize: 11, color: '#aaa' }}> kcal</span>
+              <div style={{ background: '#F0F6FF', borderRadius: 8, padding: '6px 12px', textAlign: 'center', border: '1px solid #E2EBF6' }}>
+                <div style={{ fontSize: 10, color: '#8FA3BF' }}>Calorie</div>
+                <div style={{ fontSize: 15, fontWeight: 600, color: '#2D3748' }}>
+                  {calorie}<span style={{ fontSize: 11, color: '#8FA3BF' }}> kcal</span>
                 </div>
               </div>
             </div>
@@ -139,21 +145,25 @@ export default function PatientDashboard() {
       {/* RIGA 2: grafico BPM | mappa + postura */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, flex: 1, minHeight: 0 }}>
 
-        {/* Componente grafico BPM separato */}
         <BpmChart patientID={PATIENT_ID} />
 
         {/* Mappa GPS con badge postura */}
-        <div style={{ background: '#16213e', borderRadius: 10, padding: '10px 14px', display: 'flex', flexDirection: 'column' }}>
+        <div style={{
+          background: '#FFFFFF', borderRadius: 10, padding: '10px 14px',
+          display: 'flex', flexDirection: 'column',
+          border: '1px solid #E2EBF6', boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+        }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, flexShrink: 0 }}>
-            <div style={{ fontSize: 11, color: '#888' }}>Posizione GPS</div>
+            <div style={{ fontSize: 11, color: '#8FA3BF', fontWeight: 500 }}>Posizione GPS</div>
             <span style={{
-              background: caduta ? '#7A1F1F' : '#085041',
-              color:      caduta ? '#F09595' : '#9FE1CB',
-              padding: '2px 10px', borderRadius: 20, fontSize: 11,
+              background: caduta ? '#FFF1F1' : '#F0FBF8',
+              color:      caduta ? '#C53030' : '#0D7A5F',
+              border:     `1px solid ${caduta ? '#FEB2B2' : '#6EE7C7'}`,
+              padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 500,
             }}>{post}</span>
           </div>
           {gps?.lat && (
-            <div style={{ fontSize: 10, color: '#555', marginBottom: 6, flexShrink: 0 }}>
+            <div style={{ fontSize: 10, color: '#B0C4D8', marginBottom: 6, flexShrink: 0 }}>
               {gps.lat.toFixed(4)}° N, {gps.lng.toFixed(4)}° E · {new Date(gps.timestamp).toLocaleTimeString()}
             </div>
           )}

@@ -1,3 +1,6 @@
+// MappaGPS.jsx
+// Mappa GPS interattiva con posizione del paziente in tempo reale
+// Basata su React Leaflet + OpenStreetMap
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import { useEffect } from 'react'
@@ -20,9 +23,11 @@ function RecenterMap({ lat, lng }) {
 export default function MappaGPS({ lat, lng, nome, timestamp }) {
   if (!lat || !lng) return (
     <div style={{
-      background: '#0f1731', borderRadius: 8,
+      background: '#F0F6FF', borderRadius: 8,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      height: '100%', color: '#555', fontSize: 12,
+      height: '100%', color: '#8FA3BF', fontSize: 12,
+      border: '1px solid #E2EBF6',
+      boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
     }}>
       In attesa del segnale GPS...
     </div>
@@ -42,7 +47,7 @@ export default function MappaGPS({ lat, lng, nome, timestamp }) {
       <RecenterMap lat={lat} lng={lng} />
       <Marker position={[lat, lng]}>
         <Popup>
-          <div style={{ fontSize: 12 }}>
+          <div style={{ fontSize: 12, color: '#2D3748' }}>
             <strong>{nome}</strong><br />
             {lat.toFixed(4)}° N, {lng.toFixed(4)}° E<br />
             {timestamp ? new Date(timestamp).toLocaleTimeString() : ''}

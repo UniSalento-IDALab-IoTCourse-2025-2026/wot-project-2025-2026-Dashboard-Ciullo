@@ -14,14 +14,14 @@ import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 
 const alertStyle = {
-  warning:  { bg: '#2a1a00', color: '#FAC775' },
-  critical: { bg: '#2a0000', color: '#F09595' },
+  warning:  { bg: '#FFF8ED', color: '#B45309', border: '#FCD34D' },
+  critical: { bg: '#FFF1F1', color: '#C53030', border: '#FEB2B2' },
 }
 
 const sevBadge = {
-  normal:   { bg: '#085041', color: '#9FE1CB', label: 'Normale' },
-  warning:  { bg: '#854F0B', color: '#FAC775', label: 'Attenzione' },
-  critical: { bg: '#7A1F1F', color: '#F09595', label: 'Critico' },
+  normal:   { bg: '#F0FBF8', color: '#0D7A5F', border: '#6EE7C7', label: 'Normale' },
+  warning:  { bg: '#FFF8ED', color: '#B45309', border: '#FCD34D', label: 'Attenzione' },
+  critical: { bg: '#FFF1F1', color: '#C53030', border: '#FEB2B2', label: 'Critico' },
 }
 
 export default function DoctorDashboard() {
@@ -36,17 +36,14 @@ export default function DoctorDashboard() {
   const [newPaz, setNewPaz]       = useState({ nome: '', cognome: '', email: '', password: '', telefono: '', codice_fiscale: '', patientID: '' })
   const [erroreModal, setErroreModal] = useState('')
 
-  // Tiene traccia dell'ultimo alert notificato per non ripetere la stessa notifica
   const lastNotifiedRef = useRef(null)
 
-  // Chiede il permesso notifiche Chrome al primo caricamento
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission()
     }
   }, [])
 
-  // Mostra notifica Chrome quando arriva un NUOVO alert critical
   useEffect(() => {
     if (alerts.length === 0) return
     const ultimo = alerts[0]
@@ -72,7 +69,6 @@ export default function DoctorDashboard() {
         const paz = await axios.get('/api/patients', { headers })
         setPazienti(paz.data)
 
-        // Vitali più recenti per ogni paziente
         const latestData = {}
         await Promise.all(paz.data.map(async p => {
           if (!p.patientID) return
@@ -85,7 +81,6 @@ export default function DoctorDashboard() {
         }))
         setLatestMap(latestData)
 
-        // Alert di tutti i pazienti uniti in una lista ordinata
         const allAlerts = []
         await Promise.all(paz.data.map(async p => {
           if (!p.patientID) return
@@ -130,86 +125,87 @@ export default function DoctorDashboard() {
 
   return (
     <div style={{
-      background: '#1a1a2e', height: '100vh', padding: '16px 20px',
-      fontFamily: 'sans-serif', color: '#fff', boxSizing: 'border-box',
+      background: '#F0F4F8', height: '100vh', padding: '16px 20px',
+      fontFamily: 'sans-serif', color: '#2D3748', boxSizing: 'border-box',
       display: 'flex', flexDirection: 'column', gap: 10,
     }}>
 
       {/* HEADER */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
         <div>
-          <div style={{ fontSize: 20, fontWeight: 500, letterSpacing: 1 }}>SMARTCARE — Vista medico</div>
-          <div style={{ fontSize: 11, color: '#555', marginTop: 2 }}>
+          <div style={{ fontSize: 20, fontWeight: 600, color: '#1A202C', letterSpacing: 0.5 }}>SMARTCARE — Vista medico</div>
+          <div style={{ fontSize: 11, color: '#8FA3BF', marginTop: 2 }}>
             Dr. {user?.nome} {user?.cognome} · aggiornato {lastUpd}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => setShowModal(true)} style={{
-            background: '#1D9E75', border: 'none', color: '#fff',
+            background: '#60A5FA', border: 'none', color: '#fff',
             padding: '5px 14px', borderRadius: 20, fontSize: 11,
             cursor: 'pointer', fontWeight: 500,
+            boxShadow: '0 1px 4px rgba(96,165,250,0.3)',
           }}>+ Paziente</button>
           <button onClick={() => { logout(); navigate('/login') }} style={{
-            background: '#16213e', border: '0.5px solid #555', color: '#888',
-            padding: '5px 14px', borderRadius: 20, fontSize: 11, cursor: 'pointer'
+            background: '#FFFFFF', border: '1px solid #E2EBF6', color: '#8FA3BF',
+            padding: '5px 14px', borderRadius: 20, fontSize: 11, cursor: 'pointer',
           }}>Esci</button>
         </div>
       </div>
 
       {/* CARD CONTATORI */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, flexShrink: 0 }}>
-        <div style={{ background: '#16213e', borderRadius: 10, padding: '14px 12px', borderLeft: '3px solid #1D9E75' }}>
-          <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>Pazienti monitorati</div>
-          <div style={{ fontSize: 28, fontWeight: 500 }}>{pazienti.length}</div>
+        <div style={{ background: '#FFFFFF', borderRadius: 10, padding: '14px 12px', borderLeft: '3px solid #60A5FA', border: '1px solid #E2EBF6', borderLeftWidth: 3, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+          <div style={{ fontSize: 11, color: '#8FA3BF', marginBottom: 4 }}>Pazienti monitorati</div>
+          <div style={{ fontSize: 28, fontWeight: 600, color: '#1A202C' }}>{pazienti.length}</div>
         </div>
-        <div style={{ background: '#16213e', borderRadius: 10, padding: '14px 12px', borderLeft: '3px solid #EF9F27' }}>
-          <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>Alert warning</div>
-          <div style={{ fontSize: 28, fontWeight: 500, color: '#FAC775' }}>{nWarning}</div>
+        <div style={{ background: '#FFFFFF', borderRadius: 10, padding: '14px 12px', borderLeft: '3px solid #F59E0B', border: '1px solid #E2EBF6', borderLeftWidth: 3, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+          <div style={{ fontSize: 11, color: '#8FA3BF', marginBottom: 4 }}>Alert warning</div>
+          <div style={{ fontSize: 28, fontWeight: 600, color: '#B45309' }}>{nWarning}</div>
         </div>
-        <div style={{ background: '#16213e', borderRadius: 10, padding: '14px 12px', borderLeft: '3px solid #E24B4A' }}>
-          <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>Alert critical</div>
-          <div style={{ fontSize: 28, fontWeight: 500, color: '#F09595' }}>{nCritical}</div>
+        <div style={{ background: '#FFFFFF', borderRadius: 10, padding: '14px 12px', borderLeft: '3px solid #F87171', border: '1px solid #E2EBF6', borderLeftWidth: 3, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+          <div style={{ fontSize: 11, color: '#8FA3BF', marginBottom: 4 }}>Alert critical</div>
+          <div style={{ fontSize: 28, fontWeight: 600, color: '#C53030' }}>{nCritical}</div>
         </div>
       </div>
 
       {/* TABELLA PAZIENTI */}
-      <div style={{ background: '#16213e', borderRadius: 10, padding: 14, flexShrink: 0 }}>
-        <div style={{ fontSize: 12, color: '#888', marginBottom: 10 }}>Pazienti attivi</div>
+      <div style={{ background: '#FFFFFF', borderRadius: 10, padding: 14, flexShrink: 0, border: '1px solid #E2EBF6', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+        <div style={{ fontSize: 12, color: '#8FA3BF', marginBottom: 10, fontWeight: 500 }}>Pazienti attivi</div>
         <div style={{ minHeight: tableMinHeight, overflowY: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead>
               <tr>
                 {['Paziente', 'BPM', 'Temp', 'HRV', 'Severity', 'Ultimo agg.', ''].map(h => (
-                  <th key={h} style={{ textAlign: 'left', color: '#555', fontWeight: 400, padding: '6px 8px', borderBottom: '1px solid #1e2a4a' }}>{h}</th>
+                  <th key={h} style={{ textAlign: 'left', color: '#B0C4D8', fontWeight: 500, padding: '6px 8px', borderBottom: '1px solid #E2EBF6' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {pazienti.length === 0 ? (
-                <tr><td colSpan={7} style={{ color: '#555', padding: 12, textAlign: 'center' }}>Nessun paziente registrato</td></tr>
+                <tr><td colSpan={7} style={{ color: '#B0C4D8', padding: 12, textAlign: 'center' }}>Nessun paziente registrato</td></tr>
               ) : pazienti.map(p => {
                 const v   = latestMap[p.patientID]
                 const sev = v?.anomaly?.severity || 'normal'
                 const sb  = sevBadge[sev] || sevBadge.normal
                 return (
                   <tr key={p._id}>
-                    <td style={{ padding: '8px 8px', borderBottom: '1px solid #1e2a4a', color: '#fff', fontWeight: 500 }}>
+                    <td style={{ padding: '8px 8px', borderBottom: '1px solid #F0F4F8', color: '#1A202C', fontWeight: 500 }}>
                       {p.nome} {p.cognome}
-                      <div style={{ fontSize: 10, color: '#555' }}>{p.patientID}</div>
+                      <div style={{ fontSize: 10, color: '#B0C4D8' }}>{p.patientID}</div>
                     </td>
-                    <td style={{ padding: '8px 8px', borderBottom: '1px solid #1e2a4a', color: '#ccc' }}>{v?.bpm ? Math.round(v.bpm) : '—'}</td>
-                    <td style={{ padding: '8px 8px', borderBottom: '1px solid #1e2a4a', color: '#ccc' }}>{v?.temp_c ? `${v.temp_c.toFixed(1)}°C` : '—'}</td>
-                    <td style={{ padding: '8px 8px', borderBottom: '1px solid #1e2a4a', color: '#ccc' }}>{v?.hrv_ms ? `${Math.round(v.hrv_ms)} ms` : '—'}</td>
-                    <td style={{ padding: '8px 8px', borderBottom: '1px solid #1e2a4a' }}>
-                      <span style={{ background: sb.bg, color: sb.color, padding: '2px 8px', borderRadius: 12, fontSize: 10 }}>{sb.label}</span>
+                    <td style={{ padding: '8px 8px', borderBottom: '1px solid #F0F4F8', color: '#4A5568' }}>{v?.bpm ? Math.round(v.bpm) : '—'}</td>
+                    <td style={{ padding: '8px 8px', borderBottom: '1px solid #F0F4F8', color: '#4A5568' }}>{v?.temp_c ? `${v.temp_c.toFixed(1)}°C` : '—'}</td>
+                    <td style={{ padding: '8px 8px', borderBottom: '1px solid #F0F4F8', color: '#4A5568' }}>{v?.hrv_ms ? `${Math.round(v.hrv_ms)} ms` : '—'}</td>
+                    <td style={{ padding: '8px 8px', borderBottom: '1px solid #F0F4F8' }}>
+                      <span style={{ background: sb.bg, color: sb.color, border: `1px solid ${sb.border}`, padding: '2px 8px', borderRadius: 12, fontSize: 10, fontWeight: 500 }}>{sb.label}</span>
                     </td>
-                    <td style={{ padding: '8px 8px', borderBottom: '1px solid #1e2a4a', color: '#555', fontSize: 11 }}>
+                    <td style={{ padding: '8px 8px', borderBottom: '1px solid #F0F4F8', color: '#B0C4D8', fontSize: 11 }}>
                       {v ? new Date(v.timestamp).toLocaleTimeString() : '—'}
                     </td>
-                    <td style={{ padding: '8px 8px', borderBottom: '1px solid #1e2a4a' }}>
+                    <td style={{ padding: '8px 8px', borderBottom: '1px solid #F0F4F8' }}>
                       <button onClick={() => navigate(`/medico/paziente/${p._id.toString()}`)} style={{
-                        background: '#16213e', border: '0.5px solid #378ADD', color: '#378ADD',
-                        padding: '3px 10px', borderRadius: 6, fontSize: 10, cursor: 'pointer'
+                        background: '#FFFFFF', border: '1px solid #60A5FA', color: '#60A5FA',
+                        padding: '3px 10px', borderRadius: 6, fontSize: 10, cursor: 'pointer', fontWeight: 500,
                       }}>Dettaglio →</button>
                     </td>
                   </tr>
@@ -221,21 +217,22 @@ export default function DoctorDashboard() {
       </div>
 
       {/* LISTA ALERT */}
-      <div style={{ background: '#16213e', borderRadius: 10, padding: 14, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ fontSize: 12, color: '#888', marginBottom: 8, flexShrink: 0 }}>Alert recenti — tutti i pazienti</div>
+      <div style={{ background: '#FFFFFF', borderRadius: 10, padding: 14, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', border: '1px solid #E2EBF6', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+        <div style={{ fontSize: 12, color: '#8FA3BF', marginBottom: 8, flexShrink: 0, fontWeight: 500 }}>Alert recenti — tutti i pazienti</div>
         <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexShrink: 0 }}>
           {['tutti', 'warning', 'critical'].map(f => (
             <button key={f} onClick={() => setFiltro(f)} style={{
               padding: '3px 10px', borderRadius: 12, fontSize: 11, cursor: 'pointer',
-              background: filtro === f ? '#378ADD' : 'transparent',
-              color:      filtro === f ? '#fff' : '#888',
-              border:     `0.5px solid ${filtro === f ? '#378ADD' : '#333'}`,
+              background: filtro === f ? '#60A5FA' : '#FFFFFF',
+              color:      filtro === f ? '#fff' : '#8FA3BF',
+              border:     `1px solid ${filtro === f ? '#60A5FA' : '#E2EBF6'}`,
+              fontWeight: filtro === f ? 500 : 400,
             }}>{f.charAt(0).toUpperCase() + f.slice(1)}</button>
           ))}
         </div>
         <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 5 }}>
           {alertsFiltrati.length === 0 ? (
-            <p style={{ color: '#555', fontSize: 12 }}>Nessun alert</p>
+            <p style={{ color: '#B0C4D8', fontSize: 12 }}>Nessun alert</p>
           ) : alertsFiltrati.map(a => {
             const as    = alertStyle[a.anomaly?.severity] || alertStyle.warning
             const flags = [...(a.anomaly?.flags||[]), ...(a.anomaly?.critical||[])].join(' · ')
@@ -243,12 +240,13 @@ export default function DoctorDashboard() {
               <div key={a._id} style={{
                 background: as.bg, borderRadius: 6, padding: '6px 10px',
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0,
+                border: `1px solid ${as.border}`,
               }}>
-                <span style={{ fontSize: 11, color: as.color }}>
+                <span style={{ fontSize: 11, color: as.color, fontWeight: 500 }}>
                   {a.pazienteNome} — {a.anomaly?.severity?.toUpperCase()} · BPM {Math.round(a.bpm)} | Temp {a.temp_c?.toFixed(1)}°C
                   {flags ? ` · ${flags}` : ''}
                 </span>
-                <span style={{ fontSize: 10, color: '#555', whiteSpace: 'nowrap', marginLeft: 8 }}>
+                <span style={{ fontSize: 10, color: '#B0C4D8', whiteSpace: 'nowrap', marginLeft: 8 }}>
                   {new Date(a.timestamp).toLocaleTimeString()}
                 </span>
               </div>
@@ -260,17 +258,17 @@ export default function DoctorDashboard() {
       {/* MODAL AGGIUNGI PAZIENTE */}
       {showModal && (
         <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100,
         }}>
-          <div style={{ background: '#16213e', borderRadius: 12, padding: '1.5rem', width: 400, border: '0.5px solid #1e2a4a' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: 12, padding: '1.5rem', width: 400, border: '1px solid #E2EBF6', boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2 style={{ fontSize: 16, fontWeight: 500, margin: 0 }}>Nuovo paziente</h2>
-              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#888', fontSize: 18, cursor: 'pointer' }}>✕</button>
+              <h2 style={{ fontSize: 16, fontWeight: 600, margin: 0, color: '#1A202C' }}>Nuovo paziente</h2>
+              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: '#B0C4D8', fontSize: 18, cursor: 'pointer' }}>✕</button>
             </div>
 
             {erroreModal && (
-              <div style={{ background: '#2a0000', color: '#F09595', padding: '8px 12px', borderRadius: 8, fontSize: 12, marginBottom: 12 }}>
+              <div style={{ background: '#FFF1F1', color: '#C53030', padding: '8px 12px', borderRadius: 8, fontSize: 12, marginBottom: 12, border: '1px solid #FEB2B2' }}>
                 {erroreModal}
               </div>
             )}
@@ -285,15 +283,15 @@ export default function DoctorDashboard() {
               { key: 'patientID',      label: 'Patient ID',     type: 'text' },
             ].map(f => (
               <div key={f.key} style={{ marginBottom: 10 }}>
-                <label style={{ fontSize: 11, color: '#888', display: 'block', marginBottom: 4 }}>{f.label}</label>
+                <label style={{ fontSize: 11, color: '#8FA3BF', display: 'block', marginBottom: 4, fontWeight: 500 }}>{f.label}</label>
                 <input
                   type={f.type}
                   value={newPaz[f.key]}
                   onChange={e => setNewPaz({ ...newPaz, [f.key]: e.target.value })}
                   style={{
                     width: '100%', padding: '8px 10px', borderRadius: 8,
-                    background: '#0f1731', border: '0.5px solid #1e2a4a',
-                    color: '#fff', fontSize: 13, outline: 'none',
+                    background: '#F0F6FF', border: '1px solid #E2EBF6',
+                    color: '#2D3748', fontSize: 13, outline: 'none', boxSizing: 'border-box',
                   }}
                 />
               </div>
@@ -302,13 +300,13 @@ export default function DoctorDashboard() {
             <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
               <button onClick={aggiungiPaziente} style={{
                 flex: 1, padding: '10px', borderRadius: 8,
-                background: '#1D9E75', border: 'none',
+                background: '#60A5FA', border: 'none',
                 color: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer',
               }}>Aggiungi paziente</button>
               <button onClick={() => setShowModal(false)} style={{
                 padding: '10px 16px', borderRadius: 8,
-                background: 'transparent', border: '0.5px solid #555',
-                color: '#888', fontSize: 13, cursor: 'pointer',
+                background: '#FFFFFF', border: '1px solid #E2EBF6',
+                color: '#8FA3BF', fontSize: 13, cursor: 'pointer',
               }}>Annulla</button>
             </div>
           </div>
